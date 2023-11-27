@@ -1,4 +1,4 @@
-# Lab8web
+![image](https://github.com/Luxcario/Lab8web/assets/116184002/d80ef533-5219-497f-a301-0e0c87d4ac6a)# Lab8web
 
 <br>
 
@@ -75,7 +75,8 @@ Buat folder lab8_php_database pada root directory web server ```(d:\xampp\htdocs
 Kemudian untuk mengakses direktory tersebut pada web server dengan mengakses URL: 
 http://localhost/lab8_php_database/
 
-![image](https://github.com/Luxcario/Lab8web/assets/116184002/f1301886-916a-4e75-932c-095eceef5572)
+![image](https://github.com/Luxcario/Lab8web/assets/116184002/d67971e1-0fc4-41b6-9c77-2ffabfe66a6b)
+
 <hr>
 
 **Membuat file koneksi database**
@@ -96,4 +97,151 @@ if ($conn == false)
 ```
 
 kemudian untuk mengakses nya gunakan URL : http://localhost/lab8_php_database/koneksi.php/
-![image](https://github.com/Luxcario/Lab8web/assets/116184002/b349c1d2-6049-4414-a560-6e31e0176da7)
+![image](https://github.com/Luxcario/Lab8web/assets/116184002/1cf57581-568d-4bc4-9b0f-d92e3f86111d)
+<hr>
+
+**Membuat file index untuk menampilkan data (Read)**
+
+Buat file baru dengan nama index.php
+```
+<?php
+include ("koneksi.php");
+
+// query untuk menampilkan data
+$sql = 'SELECT*FROM data_barang';
+$result = mysql_query($conn, $sql);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="style.css" rel="stylesheet" type="text/css"> 
+    <title>Data Barang</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Data Barang</h1>
+        <div class="main">
+            <table>
+                <tr>
+                    <th>Gambar</th>
+                    <th>Nama Barang</th>
+                    <th>Kategori</th>
+                    <th>Harga Jual</th>
+                    <th>Harga Beli</th>
+                    <th>Stok</th>
+                    <th>Aksi</th>
+                </tr>
+                <?php if ($result): ?>
+                <?php while ($row = mysql_fetch_array($result)) : ?>
+                <tr>
+                    <td><img src="gambar/<?=$row['gambar'];?>" alt="<?=$row['nama'];?>"></td>
+                    <td><?= $row['nama'];?></td>
+                    <td><?= $row['kategori'];?></td>
+                    <td><?= $row['harga_beli'];?></td>
+                    <td><?= $row['harga_jual'];?></td>
+                    <td><?= $row['stok'];?></td>
+                    <td><?= $row['id_barang'];?></td>
+                </tr>
+                <?php endwhile; else:?>
+                <tr>
+                    <td colspan="7">Belum ada data</td>
+                </tr>
+                <?php endif;?>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+```
+Untuk melihat hasil gunakan URL : http://localhost/lab8_php_database/index.php/
+
+![image](https://github.com/Luxcario/Lab8web/assets/116184002/61a8ba84-4baa-451c-b313-4fc18e00967c)
+<hr>
+
+**Menambah Data (Create)**
+Buat file baru dengan nama tambah.php
+```
+<?php
+error_reporting(E_ALL);
+include_once 'koneksi.php';
+
+if(isset($_POST['submit'])){
+    $nama = $_POST['nama'];
+    $kategori = $_POST['kategori'];
+    $harga_jual = $_POST['harga_jual'];
+    $harga_beli = $_POST['harga_beli'];
+    $stok = $_POST['stok'];
+    $file_gambar = $_FILES['file_gambar'];
+    $gambar = null;
+    if($file_gambar['error'] == 0){
+        $filename = str_replace('','', $file_gambar['name']);
+        $destination = dirname(__FILE__).'/gambar/'.$filename;
+        if(move_uploaded_file($file_gambar['tmp_name'],$destination)){
+            $gambar = 'gambar/' . $filename;;
+        }
+    }
+    $sql = 'INSERT INTO data_barang(nama, kategori, harga_jual, harga_beli, stok, gambar)';
+    $sql .= "VALUE ('{$nama}','{$kategori}','{$harga_jual}','{$harga_beli}','{$stok}','{$gambar}')";
+    $result = mysqli_query($conn, $sql);
+    header('location : index.php');
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <title>Tambah Barang</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Tambah Barang</h1>
+        <div class="main">
+            <form method="post" action="tambah.php" enctype="multipart/form-data">
+                <div class="input">
+                    <label>Nama Barang</label>
+                    <input type="text" name="nama">
+                </div>
+                <div class="input">
+                    <label>Kategori</label>
+                    <select name="kategori">
+                        <option value="komputer">Komputer</option>
+                        <option value="elektronik">Elektronik</option>
+                        <option value="hand phone">Hand Phone</option>
+                    </select>
+                </div>
+                <div class="input">
+                    <label>Harga Jual</label>
+                    <input type="text" name="harga_jual">
+                </div>
+                <div class="input">
+                    <label>Harga Beli</label>
+                    <input type="text" name="harga_beli">
+                </div>
+                <div class="input">
+                    <label>Stok</label>
+                    <input type="text" name="stok">
+                </div>
+                <div class="input">
+                    <label>Gambar</label>
+                    <input type="file" name="file_gambar">
+                </div>
+                <div class="input">
+                    <input type="submit" name="sumbit" value="simpan">
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+```
+untuk melihat hasil gunakan URL : http://localhost/lab8_php_database/tambah.php/ 
+
+![image](https://github.com/Luxcario/Lab8web/assets/116184002/875cb591-baa5-4aec-8c52-ffb50cf56c5b)
+<hr>
+
+**Mengubah Data (Update)**
+Buat file baru dengan nama ubah.php
